@@ -1,34 +1,24 @@
-name: Release
+name: Rust Release
 
 on:
-  push:
-    tags:
-      - v[0-9]+.*
+  release:
+    types: [created]
 
 jobs:
-  create-release:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: taiki-e/create-gh-release-action@v1
-        #with:
-          # (optional)
-          #changelog: CHANGELOG.md
-        env:
-          # (required)
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-
-  upload-assets:
+  release:
+    name: Release ${{ matrix.target }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - windows-latest
-    runs-on: ${{ matrix.os }}
+        target: [x86_64-pc-windows-gnu]
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: taiki-e/upload-rust-binary-action@v1
-        with:
-          zip: windows
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@v1.4.5
         env:
-          # (required)
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          RUSTTARGET: ${{ matrix.target }}
+          EXTRA_FILES: "README.md LICENSE"
