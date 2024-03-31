@@ -27,14 +27,17 @@ jobs:
         command: build
         args: --release --target x86_64-pc-windows-msvc
 
+    - name: Set env
+      run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_ENV
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        tag_name: ${{ substr(github.sha, 0, 7) }}
-        release_name: Release ${{ substr(github.sha, 0, 7) }}
+        tag_name: ${{ env.SHORT_SHA }}
+        release_name: Release ${{ env.SHORT_SHA }}
         draft: false
         prerelease: false
 
