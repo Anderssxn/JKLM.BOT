@@ -27,7 +27,7 @@ jobs:
         command: build
         args: --release --target x86_64-pc-windows-msvc
 
-   - name: Set env
+    - name: Set env
       run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_ENV
 
     - name: Create Release
