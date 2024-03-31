@@ -2,6 +2,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 use colored::Colorize;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use rand::Rng;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -9,10 +10,10 @@ use std::path::Path;
 use windows_hotkeys::keys::{ModKey, VKey};
 use windows_hotkeys::{HotkeyManager, HotkeyManagerImpl};
 use winput::Vk;
-
 #[derive(serde::Deserialize, serde::Serialize)]
 struct Config {
-    typing_speed: u64,
+    max_speed: u64,
+    min_speed: u64,
     dictionary_path: String,
 }
 
@@ -54,7 +55,8 @@ fn main() {
     //check for config.json file. If it doesn't exist, create it with default values. if exists, read it and print config loaded reemprendiera
 
     let default_config = Config {
-        typing_speed: 25,
+        max_speed: 150,
+        min_speed: 25,
         dictionary_path: "dictionary.txt".to_string(),
     };
 
@@ -62,14 +64,16 @@ fn main() {
         Ok(config) => match serde_json::from_str::<Config>(&config) {
             Ok(config) => {
                 println!(
-                    "{}\n{} {}\n{} {}",
+                    "{}\n{} {}\n{} {}\n{} {}",
                     "Config loaded... (if you want to change config.json restart the program)"
                         .green()
                         .bold(),
-                    "- typing speed (ms): ".green().bold(),
-                    config.typing_speed.to_string().green(),
                     "- dictionary path: ".green().bold(),
-                    config.dictionary_path.green()
+                    config.dictionary_path.green(),
+                    "- min speed: ".green().bold(),
+                    config.min_speed.to_string().green(),
+                    "- max speed: ".green().bold(),
+                    config.max_speed.to_string().green()
                 );
                 config
             }
@@ -146,7 +150,9 @@ fn main() {
 
             // Iterate over the characters of the string directly
             for ch in filtered_results[0].chars() {
-                std::thread::sleep(std::time::Duration::from_millis(config.typing_speed));
+                // random number between 25 and 75
+                let delay = rng.gen_range(config.min_speed..config.max_speed);
+                std::thread::sleep(std::time::Duration::from_millis(delay));
                 winput::send(ch);
             }
 

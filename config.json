@@ -1,4 +1,5 @@
 {
-  "typing_speed": 25,
+  "max_speed": 150,
+  "min_speed": 25,
   "dictionary_path": "dictionary.txt"
 }
